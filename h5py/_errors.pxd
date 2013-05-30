@@ -3,227 +3,233 @@ from api_types_hdf5 cimport *
 # Auto-set exception.  Returns 1 if exception set, 0 if no HDF5 error found.
 cdef int set_exception() except -1
 
-cdef extern from "hdf5.h":                          
+cdef extern from "hdf5.h":
 
-  ctypedef enum H5E_major_t:
-    H5E_NONE_MAJOR       = 0,   # special zero, no error                     
-    H5E_ARGS,                   # invalid arguments to routine               
-    H5E_RESOURCE,               # resource unavailable                       
-    H5E_INTERNAL,               # Internal error (too specific to document)
-    H5E_FILE,                   # file Accessability                         
-    H5E_IO,                     # Low-level I/O                              
-    H5E_FUNC,                   # function Entry/Exit                        
-    H5E_ATOM,                   # object Atom                                
-    H5E_CACHE,                  # object Cache                               
-    H5E_BTREE,                  # B-Tree Node                                
-    H5E_SYM,                    # symbol Table                               
-    H5E_HEAP,                   # Heap                                       
-    H5E_OHDR,                   # object Header                              
-    H5E_DATATYPE,               # Datatype                                   
-    H5E_DATASPACE,              # Dataspace                                  
-    H5E_DATASET,                # Dataset                                    
-    H5E_STORAGE,                # data storage                               
-    H5E_PLIST,                  # Property lists                             
-    H5E_ATTR,                   # Attribute                                  
-    H5E_PLINE,                  # Data filters                               
-    H5E_EFL,                    # External file list                         
-    H5E_REFERENCE,              # References                                 
-    H5E_VFL,                    # Virtual File Layer                 
-#   H5E_TBBT,                   # Threaded, Balanced, Binary Trees (not in 1.8)
-    H5E_TST,                    # Ternary Search Trees                       
-    H5E_RS,                     # Reference Counted Strings                  
-    H5E_ERROR,                  # Error API                                  
-    H5E_SLIST                   # Skip Lists     
+  ####################
+  # Major error codes
+  ####################
 
-  ctypedef enum H5E_minor_t:
+  hid_t H5E_DATASET       # Dataset
+  hid_t H5E_FUNC          # Function entry/exit
+  hid_t H5E_STORAGE       # Data storage
+  hid_t H5E_FILE          # File accessability
+  hid_t H5E_SOHM          # Shared Object Header Messages
+  hid_t H5E_SYM           # Symbol table
+  hid_t H5E_VFL           # Virtual File Layer
+  hid_t H5E_INTERNAL      # Internal error (too specific to document in detail)
+  hid_t H5E_BTREE         # B-Tree node
+  hid_t H5E_REFERENCE     # References
+  hid_t H5E_DATASPACE     # Dataspace
+  hid_t H5E_RESOURCE      # Resource unavailable
+  hid_t H5E_PLIST         # Property lists
+  hid_t H5E_LINK          # Links
+  hid_t H5E_DATATYPE      # Datatype
+  hid_t H5E_RS            # Reference Counted Strings
+  hid_t H5E_HEAP          # Heap
+  hid_t H5E_OHDR          # Object header
+  hid_t H5E_ATOM          # Object atom
+  hid_t H5E_ATTR          # Attribute
+  hid_t H5E_NONE_MAJOR    # No error
+  hid_t H5E_IO            # Low-level I/O
+  hid_t H5E_SLIST         # Skip Lists
+  hid_t H5E_EFL           # External file list
+  hid_t H5E_TST           # Ternary Search Trees
+  hid_t H5E_ARGS          # Invalid arguments to routine
+  hid_t H5E_ERROR         # Error API
+  hid_t H5E_PLINE         # Data filters
+  hid_t H5E_FSPACE        # Free Space Manager
+  hid_t H5E_CACHE         # Object cache
 
-    # Generic low-level file I/O errors 
-    H5E_SEEKERROR      # Seek failed 
-    H5E_READERROR      # Read failed  
-    H5E_WRITEERROR     # Write failed  
-    H5E_CLOSEERROR     # Close failed 
-    H5E_OVERFLOW       # Address overflowed 
-    H5E_FCNTL          # File control (fcntl) failed
+  ####################
+  # Minor error codes
+  ####################
 
-    # Resource errors 
-    H5E_NOSPACE        # No space available for allocation 
-    H5E_CANTALLOC      # Can't allocate space 
-    H5E_CANTCOPY       # Unable to copy object 
-    H5E_CANTFREE       # Unable to free object 
-    H5E_ALREADYEXISTS  # Object already exists 
-    H5E_CANTLOCK       # Unable to lock object 
-    H5E_CANTUNLOCK     # Unable to unlock object 
-    H5E_CANTGC         # Unable to garbage collect 
-    H5E_CANTGETSIZE    # Unable to compute size 
-    H5E_OBJOPEN        # Object is already open 
-                       
-    # Heap errors      
-    H5E_CANTRESTORE    # Can't restore condition 
-    H5E_CANTCOMPUTE    # Can't compute value 
-    H5E_CANTEXTEND     # Can't extend heap's space 
-    H5E_CANTATTACH     # Can't attach object 
-    H5E_CANTUPDATE     # Can't update object 
-    H5E_CANTOPERATE    # Can't operate on object 
+  # Generic low-level file I/O errors
+  hid_t H5E_SEEKERROR     # Seek failed
+  hid_t H5E_READERROR     # Read failed
+  hid_t H5E_WRITEERROR    # Write failed
+  hid_t H5E_CLOSEERROR    # Close failed
+  hid_t H5E_OVERFLOW      # Address overflowed
+  hid_t H5E_FCNTL         # File control (fcntl) failed
 
-    # Function entry/exit interface errors 
-    H5E_CANTINIT       # Unable to initialize object 
-    H5E_ALREADYINIT    # Object already initialized 
-    H5E_CANTRELEASE    # Unable to release object 
-                       
-    # Property list errors 
-    H5E_CANTGET        # Can't get value 
-    H5E_CANTSET        # Can't set value 
-    H5E_DUPCLASS       # Duplicate class name in parent class 
+  # Resource errors
+  hid_t H5E_NOSPACE       # No space available for allocation
+  hid_t H5E_CANTALLOC     # Can't allocate space
+  hid_t H5E_CANTCOPY      # Unable to copy object
+  hid_t H5E_CANTFREE      # Unable to free object
+  hid_t H5E_ALREADYEXISTS # Object already exists
+  hid_t H5E_CANTLOCK      # Unable to lock object
+  hid_t H5E_CANTUNLOCK    # Unable to unlock object
+  hid_t H5E_CANTGC        # Unable to garbage collect
+  hid_t H5E_CANTGETSIZE   # Unable to compute size
+  hid_t H5E_OBJOPEN       # Object is already open
 
-    # Free space errors 
-    H5E_CANTMERGE      # Can't merge objects 
-    H5E_CANTREVIVE     # Can't revive object 
-    H5E_CANTSHRINK     # Can't shrink container 
+  # Heap errors
+  hid_t H5E_CANTRESTORE   # Can't restore condition
+  hid_t H5E_CANTCOMPUTE   # Can't compute value
+  hid_t H5E_CANTEXTEND    # Can't extend heap's space
+  hid_t H5E_CANTATTACH    # Can't attach object
+  hid_t H5E_CANTUPDATE    # Can't update object
+  hid_t H5E_CANTOPERATE   # Can't operate on object
 
-    # Object header related errors 
-    H5E_LINKCOUNT      # Bad object header link 
-    H5E_VERSION        # Wrong version number 
-    H5E_ALIGNMENT      # Alignment error 
-    H5E_BADMESG        # Unrecognized message 
-    H5E_CANTDELETE     # Can't delete message 
-    H5E_BADITER        # Iteration failed 
-    H5E_CANTPACK       # Can't pack messages 
-    H5E_CANTRESET      # Can't reset object count 
-                        
-    # System level errors 
-    H5E_SYSERRSTR      # System error message 
+  # Function entry/exit interface errors
+  hid_t H5E_CANTINIT      # Unable to initialize object
+  hid_t H5E_ALREADYINIT   # Object already initialized
+  hid_t H5E_CANTRELEASE   # Unable to release object
 
-    # I/O pipeline errors 
-    H5E_NOFILTER       # Requested filter is not available 
-    H5E_CALLBACK       # Callback failed 
-    H5E_CANAPPLY       # Error from filter 'can apply' callback 
-    H5E_SETLOCAL       # Error from filter 'set local' callback 
-    H5E_NOENCODER      # Filter present but encoding disabled 
-    H5E_CANTFILTER     # Filter operation failed 
+  # Property list errors
+  hid_t H5E_CANTGET       # Can't get value
+  hid_t H5E_CANTSET       # Can't set value
+  hid_t H5E_DUPCLASS      # Duplicate class name in parent class
+  hid_t H5E_SETDISALLOWED # Disallowed operation
 
-    # Group related errors 
-    H5E_CANTOPENOBJ    # Can't open object 
-    H5E_CANTCLOSEOBJ   # Can't close object 
-    H5E_COMPLEN        # Name component is too long 
-    H5E_PATH           # Problem with path to object 
+  # Free space errors
+  hid_t H5E_CANTMERGE     # Can't merge objects
+  hid_t H5E_CANTREVIVE    # Can't revive object
+  hid_t H5E_CANTSHRINK    # Can't shrink container
 
-    # No error 
-    H5E_NONE_MINOR     # No error 
+  # Object header related errors
+  hid_t H5E_LINKCOUNT     # Bad object header link count
+  hid_t H5E_VERSION       # Wrong version number
+  hid_t H5E_ALIGNMENT     # Alignment error
+  hid_t H5E_BADMESG       # Unrecognized message
+  hid_t H5E_CANTDELETE    # Can't delete message
+  hid_t H5E_BADITER       # Iteration failed
+  hid_t H5E_CANTPACK      # Can't pack messages
+  hid_t H5E_CANTRESET     # Can't reset object
+  hid_t H5E_CANTRENAME    # Unable to rename object
 
-    # File accessability errors 
-    H5E_FILEEXISTS     # File already exists 
-    H5E_FILEOPEN       # File already open 
-    H5E_CANTCREATE     # Unable to create file
-    H5E_CANTOPENFILE   # Unable to open file 
-    H5E_CANTCLOSEFILE  # Unable to close file 
-    H5E_NOTHDF5        # Not an HDF5 file 
-    H5E_BADFILE        # Bad file ID accessed 
-    H5E_TRUNCATED      # File has been truncated
-    H5E_MOUNT          # File mount error 
+  # System level errors
+  hid_t H5E_SYSERRSTR     # System error message
 
-    # Object atom related errors 
-    H5E_BADATOM        # Unable to find atom information (already closed?) 
-    H5E_BADGROUP       # Unable to find ID group information 
-    H5E_CANTREGISTER   # Unable to register new atom 
-    H5E_CANTINC        # Unable to increment reference count 
-    H5E_CANTDEC        # Unable to decrement reference count 
-    H5E_NOIDS          # Out of IDs for group 
+  # I/O pipeline errors
+  hid_t H5E_NOFILTER      # Requested filter is not available
+  hid_t H5E_CALLBACK      # Callback failed
+  hid_t H5E_CANAPPLY      # Error from filter 'can apply' callback
+  hid_t H5E_SETLOCAL      # Error from filter 'set local' callback
+  hid_t H5E_NOENCODER     # Filter present but encoding disabled
+  hid_t H5E_CANTFILTER    # Filter operation failed
 
-    # Cache related errors 
-    H5E_CANTFLUSH      # Unable to flush data from cache 
-    H5E_CANTSERIALIZE  # Unable to serialize data from cache 
-    H5E_CANTLOAD       # Unable to load metadata into cache 
-    H5E_PROTECT        # Protected metadata error 
-    H5E_NOTCACHED      # Metadata not currently cached 
-    H5E_SYSTEM         # Internal error detected 
-    H5E_CANTINS        # Unable to insert metadata into cache 
-    H5E_CANTRENAME     # Unable to rename metadata 
-    H5E_CANTPROTECT    # Unable to protect metadata 
-    H5E_CANTUNPROTECT  # Unable to unprotect metadata 
-    H5E_CANTPIN        # Unable to pin cache entry 
-    H5E_CANTUNPIN      # Unable to un-pin cache entry 
-    H5E_CANTMARKDIRTY  # Unable to mark a pinned entry as dirty 
-    H5E_CANTDIRTY      # Unable to mark metadata as dirty 
-    H5E_CANTEXPUNGE    # Unable to expunge a metadata cache entry 
-    H5E_CANTRESIZE     # Unable to resize a metadata cache entry 
+  # Group related errors
+  hid_t H5E_CANTOPENOBJ   # Can't open object
+  hid_t H5E_CANTCLOSEOBJ  # Can't close object
+  hid_t H5E_COMPLEN       # Name component is too long
+  hid_t H5E_PATH          # Problem with path to object
 
-    # Link related errors 
-    H5E_TRAVERSE       # Link traversal failure 
-    H5E_NLINKS         # Too many soft links in path
-    H5E_NOTREGISTERED  # Link class not registered 
-    H5E_CANTMOVE       # Move callback returned error
-    H5E_CANTSORT       # Can't sort objects 
+  # No error
+  hid_t H5E_NONE_MINOR    # No error
 
-    # Parallel MPI errors 
-    H5E_MPI           # Some MPI function failed
-    H5E_MPIERRSTR     # MPI Error String 
-    H5E_CANTRECV      # Can't receive data 
+  # File accessability errors
+  hid_t H5E_FILEEXISTS    # File already exists
+  hid_t H5E_FILEOPEN      # File already open
+  hid_t H5E_CANTCREATE    # Unable to create file
+  hid_t H5E_CANTOPENFILE  # Unable to open file
+  hid_t H5E_CANTCLOSEFILE # Unable to close file
+  hid_t H5E_NOTHDF5       # Not an HDF5 file
+  hid_t H5E_BADFILE       # Bad file ID accessed
+  hid_t H5E_TRUNCATED     # File has been truncated
+  hid_t H5E_MOUNT         # File mount error
 
-    # Dataspace errors 
-    H5E_CANTCLIP      # Can't clip hyperslab region 
-    H5E_CANTCOUNT     # Can't count elements 
-    H5E_CANTSELECT    # Can't select hyperslab 
-    H5E_CANTNEXT      # Can't move to next iterator location 
-    H5E_BADSELECT     # Invalid selection 
-    H5E_CANTCOMPARE   # Can't compare objects 
+  # Object atom related errors
+  hid_t H5E_BADATOM       # Unable to find atom information (already closed?)
+  hid_t H5E_BADGROUP      # Unable to find ID group information
+  hid_t H5E_CANTREGISTER  # Unable to register new atom
+  hid_t H5E_CANTINC       # Unable to increment reference count
+  hid_t H5E_CANTDEC       # Unable to decrement reference count
+  hid_t H5E_NOIDS         # Out of IDs for group
 
-    # Argument errors 
-    H5E_UNINITIALIZED  # Information is uinitialized 
-    H5E_UNSUPPORTED    # Feature is unsupported 
-    H5E_BADTYPE        # Inappropriate type 
-    H5E_BADRANGE       # Out of range 
-    H5E_BADVALUE       # Bad value 
+  # Cache related errors
+  hid_t H5E_CANTFLUSH     # Unable to flush data from cache
+  hid_t H5E_CANTSERIALIZE # Unable to serialize data from cache
+  hid_t H5E_CANTLOAD      # Unable to load metadata into cache
+  hid_t H5E_PROTECT       # Protected metadata error
+  hid_t H5E_NOTCACHED     # Metadata not currently cached
+  hid_t H5E_SYSTEM        # Internal error detected
+  hid_t H5E_CANTINS       # Unable to insert metadata into cache
+  hid_t H5E_CANTPROTECT   # Unable to protect metadata
+  hid_t H5E_CANTUNPROTECT # Unable to unprotect metadata
+  hid_t H5E_CANTPIN       # Unable to pin cache entry
+  hid_t H5E_CANTUNPIN     # Unable to un-pin cache entry
+  hid_t H5E_CANTMARKDIRTY # Unable to mark a pinned entry as dirty
+  hid_t H5E_CANTDIRTY     # Unable to mark metadata as dirty
+  hid_t H5E_CANTEXPUNGE   # Unable to expunge a metadata cache entry
+  hid_t H5E_CANTRESIZE    # Unable to resize a metadata cache entry
 
-    # B-tree related errors 
-    H5E_NOTFOUND            # Object not found 
-    H5E_EXISTS              # Object already exists 
-    H5E_CANTENCODE          # Unable to encode value 
-    H5E_CANTDECODE          # Unable to decode value 
-    H5E_CANTSPLIT           # Unable to split node 
-    H5E_CANTREDISTRIBUTE    # Unable to redistribute records 
-    H5E_CANTSWAP            # Unable to swap records 
-    H5E_CANTINSERT          # Unable to insert object 
-    H5E_CANTLIST            # Unable to list node 
-    H5E_CANTMODIFY          # Unable to modify record 
-    H5E_CANTREMOVE          # Unable to remove object 
+  # Parallel MPI errors
+  hid_t H5E_MPI           # Some MPI function failed
+  hid_t H5E_MPIERRSTR     # MPI Error String
+  hid_t H5E_CANTRECV      # Can't receive data
 
-    # Datatype conversion errors 
-    H5E_CANTCONVERT         # Can't convert datatypes 
-    H5E_BADSIZE             # Bad size for object 
-                        
+  # Dataspace errors
+  hid_t H5E_CANTCLIP      # Can't clip hyperslab region
+  hid_t H5E_CANTCOUNT     # Can't count elements
+  hid_t H5E_CANTSELECT    # Can't select hyperslab
+  hid_t H5E_CANTNEXT      # Can't move to next iterator location
+  hid_t H5E_BADSELECT     # Invalid selection
+  hid_t H5E_CANTCOMPARE   # Can't compare objects
+
+  # Argument errors
+  hid_t H5E_UNINITIALIZED # Information is uinitialized
+  hid_t H5E_UNSUPPORTED   # Feature is unsupported
+  hid_t H5E_BADTYPE       # Inappropriate type
+  hid_t H5E_BADRANGE      # Out of range
+  hid_t H5E_BADVALUE      # Bad value
+
+  # B-tree related errors
+  hid_t H5E_NOTFOUND      # Object not found
+  hid_t H5E_EXISTS        # Object already exists
+  hid_t H5E_CANTENCODE    # Unable to encode value
+  hid_t H5E_CANTDECODE    # Unable to decode value
+  hid_t H5E_CANTSPLIT     # Unable to split node
+  hid_t H5E_CANTREDISTRIBUTE # Unable to redistribute records
+  hid_t H5E_CANTSWAP      # Unable to swap records
+  hid_t H5E_CANTINSERT    # Unable to insert object
+  hid_t H5E_CANTLIST      # Unable to list node
+  hid_t H5E_CANTMODIFY    # Unable to modify record
+  hid_t H5E_CANTREMOVE    # Unable to remove object
+
+  # Datatype conversion errors
+  hid_t H5E_CANTCONVERT   # Can't convert datatypes
+  hid_t H5E_BADSIZE       # Bad size for object
+
   cdef enum H5E_direction_t:
-    H5E_WALK_UPWARD    = 0      # begin deep, end at API function    
-    H5E_WALK_DOWNWARD = 1       # begin at API function, end deep    
+    H5E_WALK_UPWARD    = 0      # begin deep, end at API function
+    H5E_WALK_DOWNWARD = 1       # begin at API function, end deep
 
-  ctypedef struct H5E_error_t:
-    H5E_major_t     maj_num     #  major error number             
-    H5E_minor_t     min_num     #  minor error number             
-    char    *func_name          #  function in which error occurred   
-    char    *file_name          #  file in which error occurred       
-    unsigned    line            #  line in file where error occurs    
-    char    *desc               #  optional supplied description      
+  ctypedef struct H5E_error2_t:
+    hid_t       cls_id         # class ID
+    hid_t       maj_num        # major error ID
+    hid_t       min_num        # minor error number
+    unsigned    line           # line in file where error occurs
+    char        *func_name     # function in which error occurred
+    char        *file_name     # file in which error occurred
+    char        *desc          # optional supplied description
+
+  hid_t H5E_DEFAULT
+
+  ctypedef hid_t   H5E_major_t
+  ctypedef hid_t   H5E_minor_t
 
   char      *H5Eget_major(H5E_major_t n)
   char      *H5Eget_minor(H5E_minor_t n)
-  herr_t    H5Eclear() except *
+  herr_t    H5Eclear2(hid_t estack_id) except *
 
-  ctypedef herr_t (*H5E_auto_t)(void *client_data)
-  herr_t    H5Eset_auto(H5E_auto_t func, void *client_data)
-  herr_t    H5Eget_auto(H5E_auto_t *func, void** client_data)
+  ctypedef herr_t (*H5E_auto2_t)(hid_t estack_id, void *client_data)
+  herr_t    H5Eset_auto2(hid_t estack_id, H5E_auto2_t func, void *client_data)
+  herr_t    H5Eget_auto2(hid_t estack_id, H5E_auto2_t *func, void** client_data)
 
-  herr_t    H5Eprint(void *stream)
+  herr_t    H5Eprint2(hid_t estack_id, void *stream)
 
-  ctypedef herr_t (*H5E_walk_t)(int n, H5E_error_t *err_desc, void* client_data)  
-  herr_t    H5Ewalk(H5E_direction_t direction, H5E_walk_t func, void* client_data)
+  ctypedef herr_t (*H5E_walk2_t)(int n, H5E_error2_t *err_desc, void* client_data)
+  herr_t    H5Ewalk2(hid_t estack_id, H5E_direction_t direction, H5E_walk2_t func, void* client_data)
 
 # --- Functions for managing the HDF5 error callback mechanism ---
 
 ctypedef struct err_cookie:
     # Defines the error handler state (callback and callback data)
-    H5E_auto_t func
+    H5E_auto2_t func
     void *data
 
-# Set (via H5Eset_auto) the HDF5 error handler for this thread.  Returns
+# Set (via H5Eset_auto2) the HDF5 error handler for this thread.  Returns
 # the old (presently installed) handler.
 cdef err_cookie set_error_handler(err_cookie handler)
-    

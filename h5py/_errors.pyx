@@ -62,13 +62,14 @@ _exact_table = {
   }
 
 cdef struct err_data_t:
-    H5E_error_t err
+    H5E_error2_t err
     int n
 
-cdef herr_t walk_cb(int n, H5E_error_t *desc, void *e):
+cdef herr_t walk_cb(int n, H5E_error2_t *desc, void *e):
 
     cdef err_data_t *ee = <err_data_t*>e
 
+    ee[0].err.cls_id = desc[0].cls_id
     ee[0].err.maj_num = desc[0].maj_num
     ee[0].err.min_num = desc[0].min_num
     ee[0].err.desc = desc[0].desc
@@ -83,7 +84,7 @@ cdef int set_exception() except -1:
 
     err.n = -1
 
-    if H5Ewalk(H5E_WALK_UPWARD, walk_cb, &err) < 0:
+    if H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_cb, &err) < 0:
         raise RuntimeError("Failed to walk error stack")
 
     if err.n < 0:   # No HDF5 exception information found
@@ -119,12 +120,12 @@ cdef extern from "stdio.h":
 
 def silence_errors():
     """ Disable HDF5's automatic error printing in this thread """
-    if H5Eset_auto(NULL, NULL) < 0:
+    if H5Eset_auto2(H5E_DEFAULT, NULL, NULL) < 0:
         raise RuntimeError("Failed to disable automatic error printing")
 
 def unsilence_errors():
     """ Re-enable HDF5's automatic error printing in this thread """
-    if H5Eset_auto(H5Eprint, stderr) < 0:
+    if H5Eset_auto2(H5E_DEFAULT, H5Eprint2, stderr) < 0:
         raise RuntimeError("Failed to enable automatic error printing")
 
 cdef err_cookie set_error_handler(err_cookie handler):
@@ -132,10 +133,10 @@ cdef err_cookie set_error_handler(err_cookie handler):
 
     cdef err_cookie old_handler
 
-    if H5Eget_auto(&old_handler.func, &old_handler.data) < 0:
+    if H5Eget_auto2(H5E_DEFAULT, &old_handler.func, &old_handler.data) < 0:
         raise RuntimeError("Failed to retrieve old handler")
 
-    if H5Eset_auto(handler.func, handler.data) < 0:
+    if H5Eset_auto2(H5E_DEFAULT, handler.func, handler.data) < 0:
         raise RuntimeError("Failed to install new handler")
 
     return old_handler
