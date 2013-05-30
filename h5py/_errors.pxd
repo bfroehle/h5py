@@ -206,12 +206,14 @@ cdef extern from "hdf5.h":
     char        *desc          # optional supplied description
 
   hid_t H5E_DEFAULT
+  cdef enum H5E_type_t:
+    H5E_MAJOR
+    H5E_MINOR
 
-  ctypedef hid_t   H5E_major_t
-  ctypedef hid_t   H5E_minor_t
+  # HDF5 error class
+  hid_t H5E_ERR_CLS
 
-  char      *H5Eget_major(H5E_major_t n)
-  char      *H5Eget_minor(H5E_minor_t n)
+  ssize_t   H5Eget_msg(hid_t msg_id, H5E_type_t *type, char *msg, size_t size)
   herr_t    H5Eclear2(hid_t estack_id) except *
 
   ctypedef herr_t (*H5E_auto2_t)(hid_t estack_id, void *client_data)
@@ -220,7 +222,8 @@ cdef extern from "hdf5.h":
 
   herr_t    H5Eprint2(hid_t estack_id, void *stream)
 
-  ctypedef herr_t (*H5E_walk2_t)(int n, H5E_error2_t *err_desc, void* client_data)
+  ctypedef H5E_error2_t const_H5E_error2_t "const H5E_error2_t"
+  ctypedef herr_t (*H5E_walk2_t)(unsigned n, const_H5E_error2_t *err_desc, void* client_data)
   herr_t    H5Ewalk2(hid_t estack_id, H5E_direction_t direction, H5E_walk2_t func, void* client_data)
 
 # --- Functions for managing the HDF5 error callback mechanism ---

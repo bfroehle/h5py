@@ -1,3 +1,4 @@
+from utils cimport emalloc, efree
 
 # Python-style minor error classes.  If the minor error code matches an entry
 # in this dict, the generated exception will be used.
@@ -61,55 +62,68 @@ _exact_table = {
     (H5E_ARGS, H5E_BADTYPE):        ValueError, # Invalid location in file
   }
 
-cdef struct err_data_t:
-    H5E_error2_t err
-    int n
+cdef class err_data_t:
+    cdef hid_t cls_id
+    cdef hid_t maj_num
+    cdef hid_t min_num
+    cdef object desc
+    cdef int n
 
-cdef herr_t walk_cb(int n, H5E_error2_t *desc, void *e):
+cdef herr_t walk_cb(unsigned n, const_H5E_error2_t *desc, void *e):
 
-    cdef err_data_t *ee = <err_data_t*>e
+    cdef err_data_t ee = <err_data_t>e
 
-    ee[0].err.cls_id = desc[0].cls_id
-    ee[0].err.maj_num = desc[0].maj_num
-    ee[0].err.min_num = desc[0].min_num
-    ee[0].err.desc = desc[0].desc
-    ee[0].n = n
+    ee.cls_id = desc[0].cls_id
+    ee.maj_num = desc[0].maj_num
+    ee.min_num = desc[0].min_num
+    if desc[0].desc is NULL:
+        ee.desc = None
+    else:
+        ee.desc = desc[0].desc
+    ee.n = n
+
+cdef object get_error_message(hid_t msg_id):
+    """Returns the error code description as a Python str."""
+    cdef ssize_t size
+    cdef char* mesg
+
+    # Get the size of the message
+    size = H5Eget_msg(msg_id, NULL, NULL, 0)
+    if size < 0:
+        raise RuntimeError("Failed to obtain error code description")
+
+    mesg = <char*>emalloc(sizeof(char)*(size+1))
+    try:
+        # Read the message
+        size = H5Eget_msg(msg_id, NULL, mesg, size+1)
+        if size < 0:
+            raise RuntimeError("Failed to obtain error code description")
+
+        return mesg.decode('utf-8')
+    finally:
+        efree(mesg)
 
 cdef int set_exception() except -1:
 
-    cdef err_data_t err
-    cdef char *mj_desc = NULL
-    cdef char *mn_desc = NULL
-    cdef char *desc = NULL
+    cdef err_data_t err = err_data_t()
 
     err.n = -1
 
-    if H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_cb, &err) < 0:
+    if H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_cb, <void*>err) < 0:
         raise RuntimeError("Failed to walk error stack")
 
     if err.n < 0:   # No HDF5 exception information found
         return 0
 
-    eclass = _minor_table.get(err.err.min_num, RuntimeError)
-    eclass = _exact_table.get((err.err.maj_num, err.err.min_num), eclass)
+    eclass = _minor_table.get(err.min_num, RuntimeError)
+    eclass = _exact_table.get((err.maj_num, err.min_num), eclass)
 
-    desc = err.err.desc
-    if desc is NULL:
+    if err.desc is None:
         raise RuntimeError("Failed to extract detailed error description")
 
-    try:
-        mj_desc = H5Eget_major(err.err.maj_num)
-        mn_desc = H5Eget_minor(err.err.min_num)
-        if mj_desc == NULL or mn_desc == NULL:
-            raise RuntimeError("Failed to obtain error code description")
-
-        msg = ("%s (%s: %s)" % (desc.decode('utf-8'), 
-                                mj_desc.decode('utf-8'), 
-                                mn_desc.decode('utf-8'))  ).encode('utf-8')
-    finally:
-        free(mj_desc)
-        free(mn_desc)
-        # HDF5 forbids freeing "desc"
+    msg = ("%s (%s: %s)" % (err.desc.decode('utf-8'),
+                            get_error_message(err.maj_num),
+                            get_error_message(err.min_num))).encode('utf-8')
 
     PyErr_SetString(eclass, msg)
 
@@ -125,7 +139,7 @@ def silence_errors():
 
 def unsilence_errors():
     """ Re-enable HDF5's automatic error printing in this thread """
-    if H5Eset_auto2(H5E_DEFAULT, H5Eprint2, stderr) < 0:
+    if H5Eset_auto2(H5E_DEFAULT, <H5E_auto2_t> H5Eprint2, stderr) < 0:
         raise RuntimeError("Failed to enable automatic error printing")
 
 cdef err_cookie set_error_handler(err_cookie handler):
